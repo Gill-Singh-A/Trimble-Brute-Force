@@ -134,3 +134,16 @@ if __name__ == "__main__":
     arguments.timeout = float(arguments.timeout) if arguments.timeout else None
     if not arguments.write:
         arguments.write = f"{date.today()} {strftime('%H_%M_%S', localtime())}.csv"
+    display('+', f"Total Servers     = {Back.MAGENTA}{len(arguments.server)}{Back.RESET}")
+    display('+', f"Total Credentials = {Back.MAGENTA}{len(arguments.credentials)}{Back.RESET}")
+    t1 = time()
+    successful_logins = main(arguments.server, arguments.credentials, arguments.scheme, arguments.timeout)
+    t2 = time()
+    display(':', f"Successful Logins = {Back.MAGENTA}{len(successful_logins)}{Back.RESET}")
+    display(':', f"Time Taken        = {Back.MAGENTA}{t2-t1:.2f} seconds{Back.RESET}")
+    display(':', f"Rate              = {Back.MAGENTA}{len(arguments.credentials)/(t2-t1):.2f} logins / seconds{Back.RESET}")
+    display(':', f"Dumping Successful Logins to File {Back.MAGENTA}{arguments.write}{Back.RESET}")
+    with open(arguments.write, 'w') as file:
+        file.write(f"Server,User,Password\n")
+        file.write('\n'.join([f"{server},{user},{password}" for server, (user, password) in successful_logins.items()]))
+    display('+', f"Dumped Successful Logins to File {Back.MAGENTA}{arguments.write}{Back.RESET}") 
