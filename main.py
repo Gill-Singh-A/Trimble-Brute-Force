@@ -33,8 +33,12 @@ def get_arguments(*args):
 def login(server, username='admin', password='password', scheme="http", timeout=None):
     t1 = time()
     try:
-        response = requests.get(f"{scheme}://{server}/cgi-bin/login.xml?username={quote(username)}&password={quote(password)}", verify=False, timeout=timeout)
-        authorization_status = True if response.status_code // 100 == 2 and "fail" not in response.text.lower() else False
+        if user != '':
+            response = requests.get(f"{scheme}://{server}/cgi-bin/login.xml?username={quote(username)}&password={quote(password)}", verify=False, timeout=timeout)
+            authorization_status = True if response.status_code // 100 == 2 and "fail" not in response.text.lower() else False
+        else:
+            response = requests.get(f"{scheme}://{server}/translationsen.xml")
+            authorization_status = False if "accountlocked" in response.text.lower() else True
         t2 = time()
         return authorization_status, t2-t1
     except Exception as error:
