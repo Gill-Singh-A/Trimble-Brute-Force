@@ -32,6 +32,10 @@ def get_arguments(*args):
 
 def login(server, username='admin', password='password', scheme="http", timeout=None):
     t1 = time()
+    if server.count(':') == 7:
+        server = f"[{server}]"
+    elif server.count(':') == 8:
+        server = f"[{':'.join(server.split(':')[:-1])}]:{server.split(':')[-1]}"
     try:
         if user != '':
             response = requests.get(f"{scheme}://{server}/cgi-bin/login.xml?username={quote(username)}&password={quote(password)}", verify=False, timeout=timeout)
